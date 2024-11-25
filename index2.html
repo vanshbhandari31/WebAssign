@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ShoppingListCheckOff">
+<head>
+  <meta charset="UTF-8">
+  <title>Shopping List Check Off</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      angular.module('ShoppingListCheckOff', [])
+        .controller('ToBuyController', ToBuyController)
+        .controller('AlreadyBoughtController', AlreadyBoughtController)
+        .service('ShoppingListCheckOffService', ShoppingListCheckOffService);
+
+      function ToBuyController(ShoppingListCheckOffService) {
+        var toBuyCtrl = this;
+
+        toBuyCtrl.items = ShoppingListCheckOffService.getToBuyItems();
+
+        toBuyCtrl.buyItem = function (itemIndex) {
+          ShoppingListCheckOffService.buyItem(itemIndex);
+        };
+      }
+
+      function AlreadyBoughtController(ShoppingListCheckOffService) {
+        var boughtCtrl = this;
+
+        boughtCtrl.items = ShoppingListCheckOffService.getBoughtItems();
+      }
+
+      function ShoppingListCheckOffService() {
+        var service = this;
+
+        // Pre-populated list of items to buy
+        var toBuyItems = [
+          { name: "cookies", quantity: 10 },
+          { name: "milk", quantity: 2 },
+          { name: "bread", quantity: 1 },
+          { name: "sugar", quantity: 5 },
+          { name: "tea", quantity: 3 }
+        ];
+
+        var boughtItems = [];
+
+        service.buyItem = function (itemIndex) {
+          var item = toBuyItems[itemIndex];
+          toBuyItems.splice(itemIndex, 1);
+          boughtItems.push(item);
+        };
+
+        service.getToBuyItems = function () {
+          return toBuyItems;
+        };
+
+        service.getBoughtItems = function () {
+          return boughtItems;
+        };
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div ng-controller="ToBuyController as toBuyCtrl">
+    <h2>To Buy</h2>
+    <p ng-if="toBuyCtrl.items.length === 0">Everything is bought!</p>
+    <ul>
+      <li ng-repeat="item in toBuyCtrl.items">
+        Buy {{ item.quantity }} {{ item.name }}
+        <button ng-click="toBuyCtrl.buyItem($index)">Bought</button>
+      </li>
+    </ul>
+  </div>
+
+  <div ng-controller="AlreadyBoughtController as boughtCtrl">
+    <h2>Already Bought</h2>
+    <p ng-if="boughtCtrl.items.length === 0">Nothing bought yet</p>
+    <ul>
+      <li ng-repeat="item in boughtCtrl.items">
+        Bought {{ item.quantity }} {{ item.name }}
+      </li>
+    </ul>
+  </div>
+</body>
+</html>
