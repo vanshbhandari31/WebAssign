@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="NarrowItDownApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Narrow It Down</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input {
+      padding: 5px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 5px 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    .remove-btn {
+      margin-left: 10px;
+      color: red;
+      cursor: pointer;
+    }
+    .message {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script>
+    angular.module('NarrowItDownApp', [])
+      .controller('NarrowItDownController', ['$http', function ($http) {
+        const vm = this;
+        vm.searchTerm = '';
+        vm.found = [];
+        vm.message = '';
+
+        vm.narrowItDown = function () {
+          if (!vm.searchTerm.trim()) {
+            vm.found = [];
+            vm.message = 'Nothing found';
+            return;
+          }
+          $http({
+            method: 'GET',
+            url: 'https://davids-restaurant.herokuapp.com/menu_items.json'
+          }).then(function (response) {
+            const menuItems = response.data.menu_items;
+            vm.found = menuItems.filter(item =>
+              item.description.toLowerCase().includes(vm.searchTerm.toLowerCase())
+            );
+            vm.message = vm.found.length ? '' : 'Nothing found';
+          });
+        };
+
+        vm.removeItem = function (index) {
+          vm.found.splice(index, 1);
+        };
+      }]);
+  </script>
+</head>
+<body>
+  <div ng-controller="NarrowItDownController as narrow">
+    <h1>Narrow Down Your Menu Choices</h1>
+    <input type="text" ng-model="narrow.searchTerm" placeholder="Search term">
+    <button ng-click="narrow.narrowItDown()">Narrow It Down For Me!</button>
+    <div ng-if="narrow.message" class="message">{{ narrow.message }}</div>
+    <ul>
+      <li ng-repeat="item in narrow.found">
+        {{ item.name }} ({{ item.short_name }}): {{ item.description }}
+        <span class="remove-btn" ng-click="narrow.removeItem($index)">Don't want this one!</span>
+      </li>
+    </ul>
+  </div>
+</body>
+</html>
