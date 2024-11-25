@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="LunchCheckApp">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lunch Check</title>
+  <style>
+    .message {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+    .enjoy {
+      color: green;
+    }
+    .too-much {
+      color: orange;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body ng-controller="LunchCheckController">
+  <div>
+    <h1>Lunch Checker</h1>
+    <p>
+      <input type="text" ng-model="lunchItems" placeholder="List comma-separated items">
+      <!-- Note: Empty items between commas (,,) are not counted -->
+    </p>
+    <button ng-click="checkLunch()">Check If Too Much</button>
+    <p class="message" ng-class="messageClass">{{ message }}</p>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      angular.module('LunchCheckApp', [])
+        .controller('LunchCheckController', ['$scope', function ($scope) {
+          $scope.lunchItems = '';
+          $scope.message = '';
+          $scope.messageClass = '';
+
+          $scope.checkLunch = function () {
+            if (!$scope.lunchItems.trim()) {
+              $scope.message = 'Please enter data first';
+              $scope.messageClass = 'error';
+              return;
+            }
+
+            const items = $scope.lunchItems.split(',').filter(item => item.trim() !== '');
+            const count = items.length;
+
+            if (count === 0) {
+              $scope.message = 'Please enter data first';
+              $scope.messageClass = 'error';
+            } else if (count <= 3) {
+              $scope.message = 'Enjoy!';
+              $scope.messageClass = 'enjoy';
+            } else {
+              $scope.message = 'Too much!';
+              $scope.messageClass = 'too-much';
+            }
+          };
+        }]);
+    })();
+  </script>
+</body>
+</html>
